@@ -31,17 +31,19 @@ import { join } from 'path';
       from: `"dnc_hotel" <${process.env.MAILER_FROM}>`,
     }
   }),
-  RedisModule.forRoot({
-      type: 'single',
-      url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
-      options: {
-      maxRetriesPerRequest: 1, // Limita los reintentos a 1
-      retryStrategy: (times) => {
-        return Math.min(times * 1000, 60000);
-      },
-      connectTimeout: 5000, // Timeout de conexión
-    },
-  }),
+  ...(process.env.REDIS_HOST && process.env.REDIS_PORT
+  ? [
+      RedisModule.forRoot({
+        type: 'single',
+        url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+        options: {
+          maxRetriesPerRequest: 1,
+          retryStrategy: (times) => Math.min(times * 1000, 60000),
+          connectTimeout: 5000,
+        },
+      }),
+    ]
+  : []),
   HotelsModule,
   ReservationsModule,
    ServeStaticModule.forRoot(
