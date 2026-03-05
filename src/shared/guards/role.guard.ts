@@ -5,7 +5,7 @@ import { Role } from "@prisma/client";
 
 
 @Injectable()
-export class RoleGuard implements CanActivate {
+export class  RoleGuard implements CanActivate {
     constructor(
         private reflector: Reflector,
     ){}

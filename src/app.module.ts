@@ -34,25 +34,52 @@ import { join } from 'path';
   RedisModule.forRoot({
       type: 'single',
       url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
-    }),
+      options: {
+      maxRetriesPerRequest: 1, // Limita los reintentos a 1
+      retryStrategy: (times) => {
+        return Math.min(times * 1000, 60000);
+      },
+      connectTimeout: 5000, // Timeout de conexión
+    },
+  }),
   HotelsModule,
   ReservationsModule,
-   ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../../uploads-hotels'), // Ruta del directorio donde se almacenan las imágenes
+   ServeStaticModule.forRoot(
+    {
+      rootPath: join(__dirname, '..', 'uploads-hotels'), // Ruta del directorio donde se almacenan las imágenes
       serveRoot: '/uploads-hotels',
       serveStaticOptions: {
         dotfiles: 'ignore', // Permitir servir archivos ocultos (por ejemplo, .gitignore)
          setHeaders: (res, path) => {
-          console.log(join(__dirname, '../../uploads-hotels'))
-          if (path.endsWith('.webp')) {  // Solo configuramos imágenes .webp, puedes añadir más tipos si lo deseas
+          console.log(join(__dirname, '..', 'uploads-hotels'))
+          if (path.endsWith('.webp') || path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.png')) {  // Solo configuramos imágenes .webp, puedes añadir más tipos si lo deseas
             res.setHeader('Content-Type', 'image/webp');
           }
         },
       }, // Ruta accesible desde el navegador
-    }),
+    },
+    {
+      rootPath: join(__dirname, '..', 'uploads/avatars'), // Ruta del directorio donde se almacenan las imágenes
+      serveRoot: '/uploads/avatars',
+      serveStaticOptions: {
+        dotfiles: 'ignore', // Permitir servir archivos ocultos (por ejemplo, .gitignore)
+         setHeaders: (res, path) => {
+          console.log(join(__dirname, '..', 'uploads/avatars'))
+          if (path.endsWith('.webp') || path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.png')) {  // Solo configuramos imágenes .webp, puedes añadir más tipos si lo deseas
+            res.setHeader('Content-Type', 'image/webp');
+          }
+        },
+      }, // Ruta accesible desde el navegador
+    },
+    
+  
+  ),
 ],
   providers: [
     { provide: 'APP_GUARD', useClass: ThrottlerModule }
   ],
 })
 export class AppModule {}
+
+console.log("Dirname", __dirname);
+console.log("Join Path", join(__dirname, '..', 'uploads-hotels'));

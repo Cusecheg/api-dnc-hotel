@@ -11,6 +11,7 @@ export interface IHotelRepository {
           name: true;
           email: true;
           avatar: true,
+          createdAt: true;
         };
       };
     };

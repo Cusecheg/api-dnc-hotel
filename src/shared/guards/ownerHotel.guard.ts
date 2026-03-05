@@ -7,7 +7,7 @@ import { FindOneHotelService } from "src/modules/hotels/services/findOneHotel.se
 export class OwnerHotelGuard implements CanActivate {
     constructor(
         private readonly authService: AuthService,
-        private readonly hotelService: FindOneHotelService
+        private readonly findOneHotelService: FindOneHotelService
     ){}
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
@@ -16,7 +16,7 @@ export class OwnerHotelGuard implements CanActivate {
 
         if (!user) return false
 
-        const hotel = await this.hotelService.execute(Number(hotelId));
+        const hotel = await this.findOneHotelService.execute(Number(hotelId));
 
         if (!hotel) return false
 

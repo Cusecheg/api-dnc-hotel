@@ -4,22 +4,35 @@ import type { IReservationRepository } from "../domain/repositories/ireservation
 import { ReservationStatus } from "@prisma/client";
 import { UpdateStatusReservationDto } from "../domain/dto/update-status-reservation.dto";
 import { MailerService } from "@nestjs-modules/mailer";
-import { UserService } from "src/modules/users/user.service";
+import { ShowUserService } from "src/modules/users/services/showUser.service";
 
 @Injectable()
 export class UpdateStatusReservationService {
   constructor(
     @Inject(RESERVATION_TOKEN_REPOSITORY)
     private readonly reservationRepository: IReservationRepository,
-    private readonly userService: UserService,
+    private readonly showUserService: ShowUserService,
     private readonly mailerService: MailerService,
   ){}
     async execute(id: number, status: ReservationStatus ) {
         const reservation = await this.reservationRepository.updateStatus(id, status);
-        const user = await this.userService.show(reservation.userId);
+        const user = await this.showUserService.execute(reservation.userId);
         let statusMessage = '';
         let subjectMessage = '';
         let statusColor = '';
+        
+        if (reservation.status === ReservationStatus.REJECTED) {
+          statusMessage = 'Your reservation has been rejected.';
+          subjectMessage = 'Reservation Rejected';
+          statusColor = '#ff4e4e';
+        }
+        
+        if (reservation.status === ReservationStatus.APPROVED) {
+          statusMessage = 'Your reservation has been approved!';
+          subjectMessage = 'Reservation Approved';
+          statusColor = '#28a745';
+        }
+        
         const htmlTemplate = `
         <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;">
           <table align="center" cellpadding="0" cellspacing="0" width="600" 
@@ -76,18 +89,6 @@ export class UpdateStatusReservationService {
           </table>
         </div>
       `;
-        
-        if (reservation.status === ReservationStatus.REJECTED) {
-          statusMessage = 'Your reservation has been rejected.';
-          subjectMessage = 'Reservation Rejected';
-          statusColor = '#ff4e4e';
-        }
-
-        if (reservation.status === ReservationStatus.APPROVED) {
-          statusMessage = 'Your reservation has been approved!';
-          subjectMessage = 'Reservation Approved';
-          statusColor = '#28a745';
-        }
 
         await this.mailerService.sendMail({
           to: user.email,

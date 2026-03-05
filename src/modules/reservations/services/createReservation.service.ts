@@ -17,6 +17,7 @@ export class CreateReservationService {
   ){}
 
   async execute(id: number, data: CreateReservationDto) {
+    console.log('Creating reservation with data:', data, 'for user ID:', id);
     const checkInDate = parseISO(data.checkIn);
     const checkOutDate = parseISO(data.checkOut);
     const daysOfStay = differenceInDays(checkOutDate, checkInDate);

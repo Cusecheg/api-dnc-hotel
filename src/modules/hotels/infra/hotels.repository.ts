@@ -30,6 +30,7 @@ export class HotelsRepositories implements IHotelRepository {
           name: true;
           email: true;
           avatar: true,
+          createdAt: true;
         };
       };
     };
@@ -43,6 +44,7 @@ export class HotelsRepositories implements IHotelRepository {
             name: true,
             email: true,
             avatar: true,
+            createdAt: true,
           },
         },
       },

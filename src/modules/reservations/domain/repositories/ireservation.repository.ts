@@ -7,8 +7,20 @@ export interface IReservationRepository {
             select: { name: true}
         }
     }}>>;
-    findById(id: number): Promise<Reservation | null>;
+    findById(id: number): Promise<Prisma.ReservationGetPayload<{
+        include: {
+            hotel: { include: { owner: { select: { id: true, name: true, email: true, avatar: true, createdAt: true } } },  },
+            user: { select: {name: true, email: true, role: true, avatar: true, createdAt: true}},
+        }
+    }> | null>;
     findAll(): Promise<Reservation[]>;
-    findByUser(userId: number): Promise<Reservation[]>;
+    findByUser(userId: number): Promise<Prisma.ReservationGetPayload<{
+        include: {
+            hotel: { include: { owner: true} };
+        }
+    }>[]>;
+
+    findByHotel(id: number): Promise<Reservation[]>;
+
     updateStatus(id: number, status: ReservationStatus): Promise<Reservation>;
 }

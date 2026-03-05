@@ -2,14 +2,15 @@ import { Body, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Role, User } from "@prisma/client";
 import { AuthLoginDTO } from "./domain/dto/authLogin.dto";
-import { PrismaService } from "../prisma/prisma.service";
 import * as bcrypt from 'bcrypt';
-import { UserService } from "../users/user.service";
 import { AuthRegisterDTO } from "./domain/dto/authRegister.dto";
 import { CreateUserDTO } from "../users/domain/dto/createUser.dto";
 import { AuthResetPasswordDTO } from "./domain/dto/authResetPassword.dto";
 import { AuthForgotPasswordDTO } from "./domain/dto/authForgotPassword.dto";
 import { MailerService } from "@nestjs-modules/mailer";
+import { CreateUserService } from "../users/services/createUser.service";
+import { FindByEmailUserService } from "../users/services/findByEmailIUser.service";
+import { UpdateUserService } from "../users/services/updateUser.service";
 
 
 
@@ -17,27 +18,31 @@ import { MailerService } from "@nestjs-modules/mailer";
 export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
-        private readonly userService: UserService,
+        private readonly createUserService: CreateUserService,
+        private readonly findByEmailUserService: FindByEmailUserService,
+        private readonly updateUserService: UpdateUserService,
         private readonly mailerService: MailerService
     ) {}
 
     async generateToken(user: User, expiresIn = '24h') {
-        const payload = { sub: user.id, name: user.name };
+        const payload = { sub: user.id, name: user.name, role: user.role };
         const options = { 
             expiresIn: expiresIn,
             issuer: 'dnc_hotel',
-            audience: 'users'
+            audience: 'users',
+            secret: process.env.JWT_SECRET
          }; 
         return {access_token: this.jwtService.sign(payload, options)};
     }
 
     async login({ email, password }: AuthLoginDTO){
-        const user = await this.userService.findByEmail(email);
+        const user = await this.findByEmailUserService.execute(email);
 
         if (!user || !await bcrypt.compare(password, user.password)) {
             throw new UnauthorizedException('Invalid credentials');
         }
-        return this.generateToken(user);
+
+        return await this.generateToken(user);
     }
 
     async register(body: AuthRegisterDTO){
@@ -48,7 +53,7 @@ export class AuthService {
             password: body.password,
             role: body.role ?? Role.USER,
         };
-        const user = await this.userService.create(newUser);
+        const user = await this.createUserService.execute(newUser);
         return this.generateToken(user);
     }
 
@@ -57,16 +62,16 @@ export class AuthService {
 
         if (!valid) throw new UnauthorizedException('Invalid or expired token');
         
-        const user = await this.userService.update(decoded.sub, { password: await bcrypt.hash(password, 10) });
+        const user = await this.updateUserService.execute(decoded.sub, { password: await bcrypt.hash(password, 10) });
 
         return user;
     }
 
     async forgot({email}: AuthForgotPasswordDTO){
-        const user = await this.userService.findByEmail(email);
+        const user = await this.findByEmailUserService.execute(email);
         if (!user) throw new UnauthorizedException('Email not found');
 
-        const token = this.generateToken(user, '30m');
+        const { access_token } = await this.generateToken(user, '30m');
 
         await this.mailerService.sendMail({
             to: user.email,
@@ -77,12 +82,11 @@ export class AuthService {
                 <h2 style="color: #333; margin-bottom: 16px;">Restablece tu contraseña</h2>
                 <p style="color: #555; margin-bottom: 24px;">
                 Hola, hemos recibido una solicitud para restablecer tu contraseña.<br>
-                Haz clic en el siguiente botón para continuar:
+                Copia el siguiente token y pegalo en la página de restablecimiento de contraseña:
                 </p>
-                <a href="https://tusitio.com/reset-password?token={{token}}" 
-                style="display: inline-block; background: #007bff; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold;">
-                Restablecer contraseña
-                </a>
+                <p style="display: inline-block; background: #007bff; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: bold;">  
+                ${access_token}
+                </p>
                 <p style="color: #888; font-size: 13px; margin-top: 32px;">
                 Si no solicitaste este cambio, puedes ignorar este correo.
                 </p>
