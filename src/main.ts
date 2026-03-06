@@ -11,6 +11,10 @@ async function bootstrap() {
     methods: 'GET,PATCH,POST,DELETE',
   });
   app.useGlobalInterceptors(new loggingInterceptors())
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  const port = process.env.PORT ?? 3000;
+
+  console.log("PORT:", port)
+  
+  await app.listen(port ?? 3000, '0.0.0.0');
 }
 bootstrap();
