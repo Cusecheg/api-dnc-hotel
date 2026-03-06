@@ -10,6 +10,10 @@ import { RedisModule } from '@nestjs-modules/ioredis';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
+
+
+console.log('REDIS_HOST', process.env.REDIS_HOST)
+console.log('REDIS_PORT', process.env.REDIS_PORT)
 @Module({
   imports: [PrismaModule, AuthModule, UserModule, 
   ThrottlerModule.forRoot([
