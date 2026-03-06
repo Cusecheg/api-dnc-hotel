@@ -10,8 +10,6 @@ export class HotelsRepositories implements IHotelRepository {
   create(data: CreateHotelDto, ownerId: number): Promise<Hotel> {
 
     if(data){
-      console.log('Estos son los datos que llegaron al repository:', data);
-      console.log('tipo de dato:', typeof data)
     }
 
     return this.prisma.hotel.create({ data: {

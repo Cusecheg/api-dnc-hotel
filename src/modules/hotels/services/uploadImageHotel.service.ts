@@ -23,13 +23,11 @@ export class UploadImageHotelService {
       throw new NotFoundException('Hotel not found');
     }
     const directory = resolve(process.cwd(), 'uploads-hotels');
-    console.log(`directory: ${directory} `)
     if (hotel.image) {
         const hotelImageFilePath = join(directory, hotel.image);
     try {
         await stat(hotelImageFilePath);
         await unlink(hotelImageFilePath);
-        console.log('Archivo de imagen anterior eliminado:', hotel.image);
     } catch (err) {
         if (err.code !== 'ENOENT') throw err; // Solo ignora si el archivo no existe
     }
