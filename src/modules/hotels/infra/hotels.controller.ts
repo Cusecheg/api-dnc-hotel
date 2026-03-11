@@ -43,7 +43,6 @@ export class HotelsController {
   @Roles(Role.ADMIN, Role.USER)
   @Get('name')
   findByName(@Query('name') name: string) {
-    console.log('name:', name)
     return this.findByNameHotelService.execute(name);
   }
 
@@ -61,7 +60,6 @@ export class HotelsController {
   @Roles(Role.ADMIN)
   @Post()
   create(@User('id') ownerId: number, @Body() createHotelDto: CreateHotelDto) {
-    console.log('Hotel controller - createHotelDto:', createHotelDto);
     return this.createHotelService.execute(createHotelDto, ownerId);
   }
 
@@ -76,7 +74,6 @@ export class HotelsController {
     })
   ) image: Express.Multer.File
 ) {
-    console.log('Hotel controller...')
     return this.uploadImageHotelService.execute(Number(hotelId), image.filename);
   }
 

@@ -21,7 +21,7 @@ export class CreateHotelService {
     const hotel = await this.hotelRepositories.create(createHotelDto, ownerId);
 
     if (hotel){
-      await this.redis.del(REDIS_HOTEL_KEY);
+      await this.redis.flushdb();
       await this.findAllHotelsService.execute(1, 10);
     }
     return hotel;

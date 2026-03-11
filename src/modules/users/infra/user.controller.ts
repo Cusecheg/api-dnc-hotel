@@ -58,7 +58,6 @@ export class UserController {
   @Roles(Role.ADMIN, Role.USER)
   @Get('me')
   me(@User('id') id: number) {
-     console.log('User ID:', id); 
     return this.showUserService.execute(id);
   }
   

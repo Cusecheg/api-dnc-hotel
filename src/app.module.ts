@@ -12,8 +12,6 @@ import { join } from 'path';
 
 
 
-console.log('REDIS_HOST', process.env.REDIS_HOST)
-console.log('REDIS_PORT', process.env.REDIS_PORT)
 @Module({
   imports: [PrismaModule, AuthModule, UserModule, 
   ThrottlerModule.forRoot([
@@ -86,6 +84,3 @@ console.log('REDIS_PORT', process.env.REDIS_PORT)
   ],
 })
 export class AppModule {}
-
-console.log("Dirname", __dirname);
-console.log("Join Path", join(__dirname, '..', 'uploads-hotels'));

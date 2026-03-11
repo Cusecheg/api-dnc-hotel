@@ -28,7 +28,6 @@ export class ReservationController {
   @Roles(Role.USER)
   @Post()
   create(@User('id') id: number, @Body() body: CreateReservationDto) {
-    console.log('Received request to create reservation with body:', body, 'for user ID:', id);
     return this.createReservationService.execute(id , body);
   }
 

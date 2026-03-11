@@ -11,6 +11,7 @@ import { MailerService } from "@nestjs-modules/mailer";
 import { CreateUserService } from "../users/services/createUser.service";
 import { FindByEmailUserService } from "../users/services/findByEmailIUser.service";
 import { UpdateUserService } from "../users/services/updateUser.service";
+import { EmailService } from "src/shared/microservices/resend/resend";
 
 
 
@@ -21,7 +22,8 @@ export class AuthService {
         private readonly createUserService: CreateUserService,
         private readonly findByEmailUserService: FindByEmailUserService,
         private readonly updateUserService: UpdateUserService,
-        private readonly mailerService: MailerService
+        // private readonly mailerService: MailerService,
+        private readonly emailService: EmailService,
     ) {}
 
     async generateToken(user: User, expiresIn = '24h') {
@@ -73,10 +75,10 @@ export class AuthService {
 
         const { access_token } = await this.generateToken(user, '30m');
 
-        await this.mailerService.sendMail({
-            to: user.email,
-            subject: 'Reset Password - DNC Hotel',
-            html: `
+        await this.emailService.sendEmail(
+            user.email,
+            'Reset Password - DNC Hotel',
+            `
             <div style="font-family: Arial, sans-serif; background: #f7f7f7; padding: 32px;">
             <div style="max-width: 480px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #eee; padding: 32px;">
                 <h2 style="color: #333; margin-bottom: 16px;">Restablece tu contraseña</h2>
@@ -97,7 +99,7 @@ export class AuthService {
             </div>
             </div>
             `,
-        })
+        )
 
         return `If the email is registered, you will receive instructions to reset your password. The link is valid for 30 minutes.`;
     }

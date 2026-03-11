@@ -2,9 +2,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import { RESERVATION_TOKEN_REPOSITORY } from "../utils/reservation.token.reposository";
 import type { IReservationRepository } from "../domain/repositories/ireservation.repository";
 import { ReservationStatus } from "@prisma/client";
-import { UpdateStatusReservationDto } from "../domain/dto/update-status-reservation.dto";
-import { MailerService } from "@nestjs-modules/mailer";
 import { ShowUserService } from "src/modules/users/services/showUser.service";
+import { EmailService } from "src/shared/microservices/resend/resend";
 
 @Injectable()
 export class UpdateStatusReservationService {
@@ -12,7 +11,8 @@ export class UpdateStatusReservationService {
     @Inject(RESERVATION_TOKEN_REPOSITORY)
     private readonly reservationRepository: IReservationRepository,
     private readonly showUserService: ShowUserService,
-    private readonly mailerService: MailerService,
+    private readonly emailService: EmailService,
+    // private readonly mailerService: MailerService,
   ){}
     async execute(id: number, status: ReservationStatus ) {
         const reservation = await this.reservationRepository.updateStatus(id, status);
@@ -90,11 +90,11 @@ export class UpdateStatusReservationService {
         </div>
       `;
 
-        await this.mailerService.sendMail({
-          to: user.email,
-          subject: subjectMessage,
-          html: htmlTemplate
-        })
+        await this.emailService.sendEmail(
+          user.email,
+          subjectMessage,
+          htmlTemplate
+        )
 
         return reservation;
     }

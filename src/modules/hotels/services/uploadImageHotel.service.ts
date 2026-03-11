@@ -32,7 +32,7 @@ export class UploadImageHotelService {
         if (err.code !== 'ENOENT') throw err; // Solo ignora si el archivo no existe
     }
     }
-    await this.redis.del(REDIS_HOTEL_KEY)
+    await this.redis.flushdb();
 
     return await this.hotelRepositories.update( id, 
       {

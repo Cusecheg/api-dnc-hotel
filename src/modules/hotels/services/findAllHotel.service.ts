@@ -4,7 +4,6 @@ import type { IHotelRepository } from '../domain/repositories/Ihotel.repository'
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
 import { REDIS_HOTEL_KEY } from '../utils/redisKey';
-import { Hotel } from '@prisma/client';
 
 
 @Injectable()
@@ -20,6 +19,7 @@ export class FindAllHotelService {
     const offSet = (page - 1) * limit;
 
     let data: any;
+
 
     try {
       // Intentamos acceder a Redis
@@ -37,20 +37,11 @@ export class FindAllHotelService {
 
     // Si no encontramos datos en Redis (o hubo error en la conexión), vamos a la DB
     if (!data) {
-      console.log('Buscando en la base de datos...');
       try {
         // Aquí es donde realmente buscas los datos en la base de datos
         data = await this.hotelRepositories.findHotels(offSet, limit);
-        // data = data.map((hotel: Hotel) => {
-        //   if (hotel.image) {
-        //     hotel.image = `${process.env.APP_API_URL}/uploads-hotels/${hotel.image}`;
-        //   }
-        //   return hotel;
-        // });
 
-        // Almacenamos los datos obtenidos en la base de datos en Redis para futuras peticiones
         try {
-          console.log('Guardando datos en Redis...');
           await this.redis.set(`${REDIS_HOTEL_KEY}:page:${page}:limit:${limit}`, JSON.stringify(data));
         } catch (error) {
           console.error('Error al guardar en Redis:', error);

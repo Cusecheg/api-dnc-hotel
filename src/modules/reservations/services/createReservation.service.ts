@@ -6,6 +6,7 @@ import { differenceInDays, parseISO } from 'date-fns';
 import type { IHotelRepository } from 'src/modules/hotels/domain/repositories/Ihotel.repository';
 import { HOTEL_TOKEN_REPOSITORY } from 'src/modules/hotels/utils/hotel.token.repository';
 import { MailerService } from '@nestjs-modules/mailer';
+import { EmailService } from 'src/shared/microservices/resend/resend';
 @Injectable()
 export class CreateReservationService {
   constructor(
@@ -13,11 +14,11 @@ export class CreateReservationService {
     private readonly reservationRepository: IReservationRepository,
     @Inject(HOTEL_TOKEN_REPOSITORY)
     private readonly hotelRepository: IHotelRepository,
-    private readonly mailerService: MailerService,
+    private readonly emailService: EmailService,
+    // private readonly mailerService: MailerService,
   ){}
 
   async execute(id: number, data: CreateReservationDto) {
-    console.log('Creating reservation with data:', data, 'for user ID:', id);
     const checkInDate = parseISO(data.checkIn);
     const checkOutDate = parseISO(data.checkOut);
     const daysOfStay = differenceInDays(checkOutDate, checkInDate);
@@ -46,10 +47,10 @@ export class CreateReservationService {
     };
     const reservation = await this.reservationRepository.create(newReservation)
 
-    await this.mailerService.sendMail({
-      to: hotel.owner.email,
-      subject: 'New Reservation Created',
-      html: `
+    await this.emailService.sendEmail(
+      hotel.owner.email,
+      'New Reservation Created',
+      `
       <div style="font-family: Arial, sans-serif; background:#f6f7fb; padding:24px;">
       <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
         <div style="background:#0d6efd; color:#fff; padding:20px 24px;">
@@ -95,10 +96,7 @@ export class CreateReservationService {
       </div>
       </div>
       `,
-      context: {
-        hotelName: hotel.name,
-    },
-  })
+  )
 
     return reservation;
 

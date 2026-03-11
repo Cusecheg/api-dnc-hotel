@@ -4,6 +4,7 @@ import { AuthService } from "./auth.service";
 import { PrismaModule } from "../prisma/prisma.model";
 import { AuthController } from "./auth.controller";
 import { UserModule } from "../users/user.module";
+import { EmailService } from "src/shared/microservices/resend/resend";
 
 
 @Module({
@@ -15,7 +16,7 @@ import { UserModule } from "../users/user.module";
         forwardRef(() => UserModule)
     ],
     controllers: [AuthController],
-    providers: [AuthService],
+    providers: [AuthService, EmailService],
     exports: [AuthService],
 })
 export class AuthModule {}
