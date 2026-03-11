@@ -11,7 +11,7 @@ import { MailerService } from "@nestjs-modules/mailer";
 import { CreateUserService } from "../users/services/createUser.service";
 import { FindByEmailUserService } from "../users/services/findByEmailIUser.service";
 import { UpdateUserService } from "../users/services/updateUser.service";
-import { EmailService } from "src/shared/microservices/resend/resend";
+import { EmailService } from "src/shared/microservices/resend/resend.service";
 
 
 

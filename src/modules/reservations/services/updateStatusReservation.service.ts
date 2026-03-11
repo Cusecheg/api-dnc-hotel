@@ -3,7 +3,7 @@ import { RESERVATION_TOKEN_REPOSITORY } from "../utils/reservation.token.reposos
 import type { IReservationRepository } from "../domain/repositories/ireservation.repository";
 import { ReservationStatus } from "@prisma/client";
 import { ShowUserService } from "src/modules/users/services/showUser.service";
-import { EmailService } from "src/shared/microservices/resend/resend";
+import { EmailService } from "src/shared/microservices/resend/resend.service";
 
 @Injectable()
 export class UpdateStatusReservationService {

@@ -9,11 +9,12 @@ import { ReservationsModule } from './modules/reservations/reservations.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ResendModule } from './shared/microservices/resend/resend.module';
 
 
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, 
+  imports: [PrismaModule, AuthModule, UserModule, ResendModule,
   ThrottlerModule.forRoot([
     {
     ttl: 5000,

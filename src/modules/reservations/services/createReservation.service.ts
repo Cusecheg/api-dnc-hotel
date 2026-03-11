@@ -6,7 +6,7 @@ import { differenceInDays, parseISO } from 'date-fns';
 import type { IHotelRepository } from 'src/modules/hotels/domain/repositories/Ihotel.repository';
 import { HOTEL_TOKEN_REPOSITORY } from 'src/modules/hotels/utils/hotel.token.repository';
 import { MailerService } from '@nestjs-modules/mailer';
-import { EmailService } from 'src/shared/microservices/resend/resend';
+import { EmailService } from 'src/shared/microservices/resend/resend.service';
 @Injectable()
 export class CreateReservationService {
   constructor(
